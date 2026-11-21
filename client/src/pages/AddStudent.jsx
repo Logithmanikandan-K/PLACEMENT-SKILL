@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import API from "../api";
+import { API_URL } from "../App";
 
 function AddStudent() {
     const navigate = useNavigate();
