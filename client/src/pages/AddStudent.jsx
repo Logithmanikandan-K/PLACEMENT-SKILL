@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_URL } from "../App";
@@ -20,11 +19,15 @@ function AddStudent() {
     const [message, setMessage] = useState("");
 
     useEffect(() => {
-        if (id) {
-            API.get(`/students/${id}`)
-                .then(response => setForm(response.data))
-                .catch(() => setMessage("Unable to load student"));
-        }
+        if (!id) return;
+
+        fetch(`${API_URL}/students/${id}`)
+            .then((res) => {
+                if (!res.ok) throw new Error("Failed to load student");
+                return res.json();
+            })
+            .then((data) => setForm(data))
+            .catch(() => setMessage("Unable to load student"));
     }, [id]);
 
     const handleChange = (e) => {
@@ -36,27 +39,34 @@ function AddStudent() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setMessage("");
 
         try {
-            const data = {
+            const payload = {
                 ...form,
                 aptitudeScore: Number(form.aptitudeScore)
             };
 
-            if (id) {
-                await API.put(`/students/${id}`, data);
-                setMessage("Student updated successfully");
-            } else {
-                await API.post("/students", data);
-                setMessage("Student added successfully");
+            const url = id ? `${API_URL}/students/${id}` : `${API_URL}/students`;
+            const method = id ? "PUT" : "POST";
+
+            const res = await fetch(url, {
+                method,
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await res.json().catch(() => ({}));
+
+            if (!res.ok) {
+                throw new Error(result.message || "Error saving student");
             }
 
             navigate("/students");
-
         } catch (error) {
-            setMessage(
-                error.response?.data?.message || "Error saving student"
-            );
+            setMessage(error.message || "Error saving student");
         }
     };
 
@@ -65,7 +75,6 @@ function AddStudent() {
             <h1>{id ? "Update Student Skills" : "Add Student Skills"}</h1>
 
             <form onSubmit={handleSubmit}>
-
                 <label>Student Name</label>
                 <input
                     type="text"
@@ -144,7 +153,6 @@ function AddStudent() {
                 <button type="submit" className="btn">
                     {id ? "Update Student" : "Save Student"}
                 </button>
-
             </form>
 
             {message && <p>{message}</p>}
