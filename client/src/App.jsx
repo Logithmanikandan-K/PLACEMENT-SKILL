@@ -4,6 +4,7 @@ import { Link, Routes, Route, NavLink } from "react-router-dom";
 import Home from "./pages/Home";
 import AddStudent from "./pages/AddStudent";
 import StudentList from "./pages/StudentList";
+const API = import.meta.env.VITE_API_URL || "https://placement-skill-tprr.onrender.com/api";
 
 function App() {
     return (
