@@ -1,7 +1,7 @@
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import API from "../api";
+import { API_URL } from "../App";
 
 function StudentList() {
     const [students, setStudents] = useState([]);
